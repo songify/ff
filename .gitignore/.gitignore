@@ -1,0 +1,39 @@
+<?
+	
+$token = '186beb64e55ffa8e0e8cf0d523c2350d16a74d9043ab0013c7bb74bad689bddfb8253d546a7b0ed680619';  // токен любой анкеты
+$guid = '54384231'; // цифровой айди сообщества
+
+
+$page = 0; // равшана мана  не знать щито это трогать не нада
+$limit = 1000; // равшана мана  не знать щито это трогать не нада
+
+do 	{
+$offset = $page * $limit;
+$getlist = vkapi('groups.getMembers?group_id='.$guid.'&sort=id_asc&offset='.$offset.'&count=1000&access_token='.$token.'&v=5.64'); 
+$json_get_all = json_decode($getlist, true);  $list = $json_get_all['response']['items']; $countcomm = $json_get_all['response']['count'];
+if (!is_array($collectuids)) { $collectuids = $list; }
+if (is_array($collectuids)) { $previos = $collectuids;  $collectuids = array_merge($previos, $list); }
+  
+++$page; usleep(335000); } 
+while($countcomm > $offset + $limit );
+$uniqs = array_unique($collectuids);
+
+$ridding = fopen('service/glist.txt', 'r'); $unsr = fgets($ridding, 98765432); fclose($ridding); $last = unserialize($unsr);
+$different = array_diff($uniqs, $last);
+
+$ss = serialize($uniqs); $wrguids = fopen("service/glist.txt", "w+b"); fwrite($wrguids,$ss); fclose($wrguids);
+$ss = serialize($different); $wrguids = fopen("service/diferent.txt", "w+b"); fwrite($wrguids,$ss); fclose($wrguids);
+
+
+	function vkapi($method) {
+		$ch = curl_init("https://api.vk.com/method/".$method);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
+		curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
+		$response = curl_exec($ch);
+		curl_close($ch);
+		return $response;
+		
+	}
+
+?>
